@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using TheWaterProject.Models.ViewModels;
 
-namespace TheWaterProject.Migrations
+namespace TheWaterProject.Infrastructure
 {
     [HtmlTargetElement("div", Attributes = "page-model")]
     public class PaginationTagHelper : TagHelper
     {
         private IUrlHelperFactory urlHelperFactory;
 
-        public PaginationTagHelper (IUrlHelperFactory temp)
+        public PaginationTagHelper(IUrlHelperFactory temp)
         {
             urlHelperFactory = temp;
         }
@@ -22,6 +22,11 @@ namespace TheWaterProject.Migrations
         public ViewContext? ViewContext { get; set; }
         public string PageAction { get; set; }
         public PaginationInfo PageModel { get; set; }
+
+        public bool PageClassesEnabled { get; set; } = false;
+        public string PageClass { get; set; } = string.Empty;
+        public string PageClassNormal { get; set; } = string.Empty;
+        public string PageClassSelected { get; set; } = string.Empty;
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
@@ -35,6 +40,12 @@ namespace TheWaterProject.Migrations
                 {
                     TagBuilder tag = new TagBuilder("a");
                     tag.Attributes["href"] = urlHelper.Action(PageAction, new { pageNum = i });
+
+                    if (PageClassesEnabled)
+                    {
+                        tag.AddCssClass(PageClass);
+                        tag.AddCssClass(i == PageModel.CurrentPage ? PageClassSelected : PageClassNormal);
+                    }
                     tag.InnerHtml.Append(i.ToString());
 
                     result.InnerHtml.AppendHtml(tag);
